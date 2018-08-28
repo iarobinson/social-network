@@ -1,0 +1,26 @@
+{
+  "name": "open-social",
+  "version": "0.0.0",
+  "description": "A blank open source social network",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iarobinson/open-social.git"
+  },
+  "keywords": [
+    "social",
+    "network",
+    "blank",
+    "open",
+    "source"
+  ],
+  "author": "Ian Robinson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iarobinson/open-social/issues"
+  },
+  "homepage": "https://github.com/iarobinson/open-social#readme"
+}
