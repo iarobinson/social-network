@@ -13,15 +13,15 @@ module.exports = function validateProfileInput(data) {
 		errors.handle = 'Handle needs to be between 2 and 40 characters';
 	}
 	
-	if (!Validator.isEmpty(data.handle)) {
+	if (Validator.isEmpty(data.handle)) {
 		errors.handle = 'Profile handle is required';
 	}
 
-	if (!Validator.isEmpty(data.status)) {
+	if (Validator.isEmpty(data.status)) {
 		errors.status = 'Status field is required';
 	}
 
-	if (!Validator.isEmpty(data.skills)) {
+	if (Validator.isEmpty(data.skills)) {
 		errors.skills = 'Skills are required';
 	}
 
@@ -35,6 +35,7 @@ module.exports = function validateProfileInput(data) {
 		if (!Validator.isURL(data.youtube)) {
 			errors.youtube = 'Not a valid YouTube URL';
 		}
+	}
 
 	if (!isEmpty(data.twitter)) {
 		if (!Validator.isURL(data.twitter)) {
