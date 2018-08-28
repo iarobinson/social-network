@@ -38,7 +38,6 @@ router.post('/register', (req, res) => {
 				errors.email = "Email already Exists";
 				return res.status(400).json(errors);
 			} else {
-				console.log("req.body.email =>", req.body.email);
 				const avatar = gravatar.url(req.body.email, {
 					s: '200', // Size of avatar image
 					r: 'pg', // PG R Etc, the rating of your Gravatar
@@ -54,7 +53,7 @@ router.post('/register', (req, res) => {
 
 				// Save the User password as a hash for security
 				bcrypt.genSalt(10, (err, salt) => {
-					// console.log(newUser.password, "<- newUser.password");
+
 					bcrypt.hash(newUser.password, salt, (err, hash) => {
 						if (err) throw err;
 						newUser.password = hash;
@@ -78,7 +77,6 @@ router.post('/login', (req, res) => {
 		return res.status(400).json(errors);
 	}
 	const email = req.body.email;
-	console.log(email, "<- email");
 	const password = req.body.password;
 
 	// Find user by email
