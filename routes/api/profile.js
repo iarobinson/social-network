@@ -79,6 +79,7 @@ router.post('/', passport.authenticate('jwt', { session: false }),
 						}
 						
 						// Save profile updates
+						new Profile(profileFields).save().then(profile => res.json(profile))
 					});
 				}
 			})
