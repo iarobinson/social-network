@@ -4,7 +4,9 @@
   "description": "A blank open source social network",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "hi-ian": "console.log('Hi Ian')"
   },
   "repository": {
     "type": "git",
