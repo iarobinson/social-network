@@ -5,6 +5,11 @@ const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
+const passport = require('passport');
+
+// Load Input Validation
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 // Load the User Model
 const User = require('../../models/User');
@@ -20,11 +25,18 @@ router.get('/test', (req, res) => {
 // @desc 		Register user
 // @access 	Public
 router.post('/register', (req, res) => {
+	const { errors, isValid } = validateRegisterInput(req.body);
+	
+	// Check Validation
+	if (!isValid) {
+		return res.status(400).json(errors);
+	}
+	
 	// now we can use any Mongoose commands
-	User.findOne( { email: req.body.email })
-		.then(user => {
+	User.findOne( { email: req.body.email }).then(user => {
 			if (user) {
-				return res.status(400).json({ email: 'Email already recorded' });
+				errors.email = "Email already Exists";
+				return res.status(400).json(errors);
 			} else {
 				console.log("req.body.email =>", req.body.email);
 				const avatar = gravatar.url(req.body.email, {
@@ -44,7 +56,6 @@ router.post('/register', (req, res) => {
 				bcrypt.genSalt(10, (err, salt) => {
 					// console.log(newUser.password, "<- newUser.password");
 					bcrypt.hash(newUser.password, salt, (err, hash) => {
-						console.log('In post register', err);
 						if (err) throw err;
 						newUser.password = hash;
 						newUser.save()
@@ -60,15 +71,23 @@ router.post('/register', (req, res) => {
 // @desc 		Login User / Returning JWT Token
 // @access 	Public 
 router.post('/login', (req, res) => {
+	const { errors, isValid } = validateLoginInput(req.body);
+
+	// Check Validation
+	if (!isValid) {
+		return res.status(400).json(errors);
+	}
 	const email = req.body.email;
+	console.log(email, "<- email");
 	const password = req.body.password;
 
 	// Find user by email
 	User.findOne({email: email})
 		.then(user => {
+			errors.email = "User not found";
 			// Check for user
 			if (!user) {
-				return res.status(404).json({email: `User not found`})
+				return res.status(404).json(errors);
 			}
 			
 			// Check Password - User input is plain text, in database we have hashed version
@@ -86,15 +105,31 @@ router.post('/login', (req, res) => {
 							(err, token) => {
 								res.json({
 									success: true,
-									token: 'Bearer' + token,
+									token: 'Bearer ' + token,
 								});
 							}
 						);
 					} else {
-						return res.status(400).json({password: 'Incorrect Password'});
+						errors.password = "Password incorrect";
+						return res.status(400).json(errors);
 					}
 				});
 		});
 });
+
+// @route 	GET api/users/current
+// @desc 		Return current user
+// @access 	Private
+router.get(
+	'/current', 
+	passport.authenticate('jwt', { session: false }), 
+	(req, res) => {
+		res.json({ 
+			id: req.user.id,
+			name: req.user.name,
+			email: req.user.email,
+		});
+	}
+);
 
 module.exports = router;

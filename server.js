@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const User = require('./models/User.js');
+const passport = require('passport');
+// const User = require('./models/User.js');
 
 
 const users = require('./routes/api/users');
@@ -23,7 +24,11 @@ mongoose
 	.then( () => console.log('MongodDB Connected'))
 	.catch(err => console.log(err));
 
-app.get('/', (req, res) => res.send('Howdy'));
+// Passport middleware
+app.use(passport.initialize());
+
+// Passport Config - JWT strategy will go in here
+require('./config/passport')(passport);
 
 // Use Routes
 app.use('/api/users', users);
