@@ -179,14 +179,12 @@ router.post('/experience', passport.authenticate('jwt', { session: false }), (re
 				current: req.body.current,
 				description: req.body.description,
 			}
-			
+
 			// Add to experience array
 			profile.experience.unshift(newExp);
-			
-			console.log("res.json(profile) => ", res.json(profile));
+
 			// Save the profile, add the changes and return them
 			profile.save().then(profile => res.json(profile));
-			console.log('save ran... res sent...')
 		})
 });
 
@@ -230,7 +228,6 @@ router.delete(
 	'/experience/:exp_id',
 	passport.authenticate('jwt', { session: false }),
 	(req, res) => {
-	console.log("running the delete route")
 	Profile.findOne({ user: req.user.id }) // Find user in DB
 		.then((profile) => { // We assign the user data to profile variable
 			// Now we want to find the location of the experience that we want to delete
@@ -240,6 +237,30 @@ router.delete(
 			
 			// Now we remove the experience we want to delete
 			profile.experience.splice(removeIndex, 1);
+			
+			// Save changes to database and send back JSON as a response
+			profile.save().then(profile => res.json(profile))
+		})
+		.catch(err => res.status(404).json(err));
+});
+
+
+// @route 	DELETE api/profile/education/:edu_id
+// @desc 		Delete education from profile
+// @access 	Private
+router.delete(
+	'/education/:edu_id',
+	passport.authenticate('jwt', { session: false }),
+	(req, res) => {
+	Profile.findOne({ user: req.user.id }) // Find user in DB
+		.then((profile) => { // We assign the user data to profile variable
+			// Now we want to find the location of the experience that we want to delete
+			const removeIndex = profile.education // Get into experience part of object
+				.map(item => item.id) // Get a list of items by the id
+				.indexOf(req.params.edu_id); // Find the location of the matching id
+			
+			// Now we remove the experience we want to delete
+			profile.education.splice(removeIndex, 1);
 			
 			// Save changes to database and send back JSON as a response
 			profile.save().then(profile => res.json(profile))
