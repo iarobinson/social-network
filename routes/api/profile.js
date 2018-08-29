@@ -8,7 +8,7 @@ const validateProfileInput = require('../../validation/profile');
 const validateExperienceInput = require('../../validation/experience');
 const validateEducationInput = require('../../validation/education');
 
-// Bring in DB connects
+// Bring in DB Models
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
@@ -267,5 +267,20 @@ router.delete(
 		})
 		.catch(err => res.status(404).json(err));
 });
+
+// @route 	DELETE api/profile
+// @desc 		Delete user and profile
+// @access 	Private
+router.delete(
+	'/',
+	passport.authenticate('jwt', { session: false }),
+	(req, res) => {
+		Profile.findOneAndRemove({ user: req.user.id }) // Find user in DB
+			.then(() => {
+				User.findOneAndRemove({ _id: req.user.id })
+					.then(() => res.json({ success: true }))
+			});
+	}
+);
 
 module.exports = router;
