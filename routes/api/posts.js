@@ -5,8 +5,9 @@ const passport = require('passport'); // because we want to protect some routes
 
 const router = express.Router(); // connect to router
 
-// Post model
+// Bring in Models
 const Post = require('../../models/Posts');
+const Profile = require('../../models/Profile');
 
 // Bring in validation
 const validatePostInput = require('../../validation/post');
@@ -15,6 +16,25 @@ const validatePostInput = require('../../validation/post');
 // @desc 		Tests post route
 // @access 	Public 
 router.get('/test', (req, res) => res.json({msg: "Yo! posts.js Works!"}));
+
+// @route 	GET api/posts
+// @desc 		Gets posts
+// @access 	Public 
+router.get('/', (req, res) => {
+	Post.find()
+		.sort({date: -1})
+		.then(posts => res.json(posts))
+		.catch(err => res.status(404).json({ nopostsfound: "No posts found with that id"}));
+});
+
+// @route 	GET api/posts/:id
+// @desc 		Gets post by id
+// @access 	Public 
+router.get('/:id', (req, res) => {
+	Post.findById(req.params.id)
+		.then(post => res.json(post))
+		.catch(err => res.status(404).json({ nopostfound: "No post found with that id"}));
+});
 
 // @route 	GET api/posts
 // @desc 		Create post
@@ -36,6 +56,27 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
 	});
 
 	newPost.save().then(post => res.json(post));
+});
+
+// @route 	DELETE api/posts/:id
+// @desc 		Delete post
+// @access 	Private 
+router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+	Profile.findOne({ user: req.user.id })
+		.then(profile => {
+			Post.findById(req.params.id)
+				.then(post => {
+					// Check that the owner of the post is calling for the delte
+					if (post.user.toString() !== req.user.id) {
+						return res.status(401).json({ notauthorized: "User not authorized" }); // 401 Authorization status error
+					}
+					
+					// Delete
+					post.remove().then(() => res.json({ success: true, postdeleted: "Your post has been deleted" }));
+				})
+				.catch(err => res.status(404).json({ postnotfound: 'No post found'}))
+		})
+		.catch(err => res.status(404).json({ nopostfound: "No post found with that id"}));
 });
 
 module.exports = router;
