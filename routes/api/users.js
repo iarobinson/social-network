@@ -16,7 +16,7 @@ const User = require('../../models/User');
 
 // @route 	GET api/users/test
 // @desc 		Tests post route
-// @access 	Public 
+// @access 	Public
 router.get('/test', (req, res) => {
 	res.json({msg: "Yo! users.js Works!"})
 });
@@ -26,12 +26,12 @@ router.get('/test', (req, res) => {
 // @access 	Public
 router.post('/register', (req, res) => {
 	const { errors, isValid } = validateRegisterInput(req.body);
-	
+
 	// Check Validation
 	if (!isValid) {
 		return res.status(400).json(errors);
 	}
-	
+
 	// now we can use any Mongoose commands
 	User.findOne( { email: req.body.email }).then(user => {
 			if (user) {
@@ -43,7 +43,7 @@ router.post('/register', (req, res) => {
 					r: 'pg', // PG R Etc, the rating of your Gravatar
 					d: 'mm', // Default... ummm... Why is this here? Related to gravatar documentation
 				});
-				
+
 				const newUser = new User({
 					name: req.body.name,
 					email: req.body.email,
@@ -68,7 +68,7 @@ router.post('/register', (req, res) => {
 
 // @route 	GET api/users/login
 // @desc 		Login User / Returning JWT Token
-// @access 	Public 
+// @access 	Public
 router.post('/login', (req, res) => {
 	const { errors, isValid } = validateLoginInput(req.body);
 
@@ -82,12 +82,12 @@ router.post('/login', (req, res) => {
 	// Find user by email
 	User.findOne({email: email})
 		.then(user => {
-			errors.email = "User not found";
 			// Check for user
 			if (!user) {
+				errors.email = "User not found";
 				return res.status(404).json(errors);
 			}
-			
+
 			// Check Password - User input is plain text, in database we have hashed version
 			bcrypt.compare(password, user.password)
 				.then(isMatch => {
@@ -95,11 +95,11 @@ router.post('/login', (req, res) => {
 						// User entered correct email and password
 						// Create JWT payload
 						const payload = { id: user.id, name: user.name, avatar: user.avatar };
-						// Sign jsonwebtoken - 
+						// Sign jsonwebtoken -
 						jwt.sign(
-							payload, 
-							keys.secretOrKey, 
-							{ expiresIn: 3600 }, 
+							payload,
+							keys.secretOrKey,
+							{ expiresIn: 3600 },
 							(err, token) => {
 								res.json({
 									success: true,
@@ -119,10 +119,10 @@ router.post('/login', (req, res) => {
 // @desc 		Return current user
 // @access 	Private
 router.get(
-	'/current', 
-	passport.authenticate('jwt', { session: false }), 
+	'/current',
+	passport.authenticate('jwt', { session: false }),
 	(req, res) => {
-		res.json({ 
+		res.json({
 			id: req.user.id,
 			name: req.user.name,
 			email: req.user.email,
