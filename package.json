@@ -4,10 +4,12 @@
   "description": "A blank open source social network",
   "main": "server.js",
   "scripts": {
+    "client-install": "npm install --prefix client",
     "start": "node server.js",
     "server": "nodemon server.js",
     "hi-ian": "console.log('Hi Ian')",
-    "client-install": "npm install --prefix client"
+    "client": "npm start --prefex",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
